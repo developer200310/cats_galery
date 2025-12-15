@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cats Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header-row">
+            <h2>Cats Gallery</h2>
+            <button id="addCatBtn" class="btn-add">Add Cat</button>
+        </div>
+
+        <div id="cats-container" class="grid"></div>
+
+        <!-- PAGINATION -->
+        <div class="pagination">
+            <button id="prevBtn" class="pagination-btn">← Previous</button>
+            <span id="pageInfo" class="page-info">Page 1</span>
+            <button id="nextBtn" class="pagination-btn">Next →</button>
+        </div>
+    </div>
+
+
+    <!-- ADD CAT MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Add a New Cat</h3>
+
+            <form id="addCatForm">
+                <input type="text" id="name" placeholder="Cat Name" required>
+                <textarea id="description" placeholder="Description" required></textarea>
+                <input type="text" id="tag" placeholder="Tag" required>
+                <input type="text" id="img" placeholder="Image URL" required>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Save</button>
+                    <button type="button" id="closeModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT CAT MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Cat</h3>
+
+            <form id="editCatForm">
+                <input type="hidden" id="editCatId">
+                <input type="text" id="editName" placeholder="Cat Name" required>
+                <textarea id="editDescription" placeholder="Description" required></textarea>
+                <input type="text" id="editTag" placeholder="Tag" required>
+                <input type="text" id="editImg" placeholder="Image URL" required>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Update</button>
+                    <button type="button" id="closeEditModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
