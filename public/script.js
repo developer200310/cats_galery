@@ -8,12 +8,14 @@ const editCatForm = document.getElementById("editCatForm");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const pageInfo = document.getElementById("pageInfo");
+const searchInput = document.getElementById("searchInput");
 
 // BACKEND URL
 const API_URL = "http://localhost:3000/cats";
 const ITEMS_PER_PAGE = 4;
 let currentPage = 1;
 let allCats = [];
+let filteredCats = [];
 
 // OPEN MODAL
 addCatBtn.addEventListener("click", () => {
@@ -39,11 +41,26 @@ prevBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-    const totalPages = Math.ceil(allCats.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(filteredCats.length / ITEMS_PER_PAGE);
     if (currentPage < totalPages) {
         currentPage++;
         displayCats();
     }
+});
+
+// SEARCH FUNCTIONALITY
+searchInput.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    currentPage = 1;
+
+    if (searchTerm === "") {
+        filteredCats = allCats;
+    } else {
+        filteredCats = allCats.filter(cat =>
+            cat.name.toLowerCase().includes(searchTerm)
+        );
+    }
+    displayCats();
 });
 
 // SUBMIT ADD CAT FORM
@@ -96,6 +113,7 @@ async function loadCats() {
     try {
         const res = await fetch(API_URL);
         allCats = await res.json();
+        filteredCats = allCats;
         currentPage = 1;
         displayCats();
     } catch (error) {
@@ -105,10 +123,10 @@ async function loadCats() {
 
 // DISPLAY CATS WITH PAGINATION
 function displayCats() {
-    const totalPages = Math.ceil(allCats.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(filteredCats.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const catsToDisplay = allCats.slice(startIndex, endIndex);
+    const catsToDisplay = filteredCats.slice(startIndex, endIndex);
 
     const container = document.getElementById("cats-container");
     container.innerHTML = "";
