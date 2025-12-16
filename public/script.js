@@ -55,6 +55,17 @@ function showNotification(message, type = "success", duration = 4000) {
     }, duration);
 }
 
+// GALLERY VISIBILITY CONTROL
+const gallerySection = document.getElementById("gallerySection");
+
+function showGallery() {
+    gallerySection.style.display = "block";
+}
+
+function hideGallery() {
+    gallerySection.style.display = "none";
+}
+
 // OPEN MODAL
 addCatBtn.addEventListener("click", () => {
     modal.style.display = "flex";
@@ -291,6 +302,21 @@ closeAuthModal2.addEventListener("click", () => {
     authModal.style.display = "none";
 });
 
+// Login button - toggle between login and logout
+loginBtn.addEventListener("click", () => {
+    if (currentUser) {
+        // User is logged in - logout
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        currentUser = null;
+        updateAuthUI();
+        showNotification("Logged out successfully!", "success");
+    } else {
+        // User is not logged in - show auth modal
+        authModal.style.display = "flex";
+    }
+});
+
 // Auth tab switching
 document.querySelectorAll(".auth-tab").forEach(tab => {
     tab.addEventListener("click", (e) => {
@@ -377,9 +403,11 @@ function updateAuthUI() {
     if (currentUser) {
         loginBtn.textContent = `Logout (${currentUser.username})`;
         loginBtn.id = "logoutBtn";
+        showGallery();
     } else {
         loginBtn.textContent = "Login";
         loginBtn.id = "loginBtn";
+        hideGallery();
     }
 }
 

@@ -21,20 +21,23 @@
         </div>
 
         <!-- TAG FILTER -->
-        <div class="tag-filter">
-            <button class="tag-btn active" data-tag="all">All</button>
-            <div id="tagContainer"></div>
-            <button id="clearFilterBtn" class="clear-filter">Clear Filter</button>
+        <div id="gallerySection" class="gallery-section" style="display: none;">
+            <div class="tag-filter">
+                <button class="tag-btn active" data-tag="all">All</button>
+                <div id="tagContainer"></div>
+                <button id="clearFilterBtn" class="clear-filter">Clear Filter</button>
+            </div>
+
+            <div id="cats-container" class="grid"></div>
+
+            <!-- PAGINATION -->
+            <div class="pagination">
+                <button id="prevBtn" class="pagination-btn">← Previous</button>
+                <span id="pageInfo" class="page-info">Page 1</span>
+                <button id="nextBtn" class="pagination-btn">Next →</button>
+            </div>
         </div>
 
-        <div id="cats-container" class="grid"></div>
-
-        <!-- PAGINATION -->
-        <div class="pagination">
-            <button id="prevBtn" class="pagination-btn">← Previous</button>
-            <span id="pageInfo" class="page-info">Page 1</span>
-            <button id="nextBtn" class="pagination-btn">Next →</button>
-        </div>
     </div>
 
 
