@@ -16,7 +16,15 @@
             <div class="header-actions">
                 <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
                 <button id="addCatBtn" class="btn-add">Add Cat</button>
+                <button id="loginBtn" class="btn-auth">Login</button>
             </div>
+        </div>
+
+        <!-- TAG FILTER -->
+        <div class="tag-filter">
+            <button class="tag-btn active" data-tag="all">All</button>
+            <div id="tagContainer"></div>
+            <button id="clearFilterBtn" class="clear-filter">Clear Filter</button>
         </div>
 
         <div id="cats-container" class="grid"></div>
@@ -48,7 +56,8 @@
             </form>
         </div>
     </div>
-
+    <!-- NOTIFICATION CONTAINER -->
+    <div id="notificationContainer" class="notification-container"></div>
     <!-- EDIT CAT MODAL -->
     <div id="editModal" class="modal">
         <div class="modal-content">
@@ -66,6 +75,45 @@
                     <button type="button" id="closeEditModal" class="btn-cancel">Cancel</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- LOGIN/SIGNUP MODAL -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="auth-container">
+                <div class="auth-toggle">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form id="loginForm" class="auth-form active">
+                    <h3>Login</h3>
+                    <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"
+                        required>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-save">Login</button>
+                        <button type="button" id="closeAuthModal" class="btn-cancel">Cancel</button>
+                    </div>
+                </form>
+
+                <!-- SIGNUP FORM -->
+                <form id="signupForm" class="auth-form">
+                    <h3>Create Account</h3>
+                    <input type="text" id="signupUsername" placeholder="Username" autocomplete="username" required>
+                    <input type="email" id="signupEmail" placeholder="Email" autocomplete="email" required>
+                    <input type="password" id="signupPassword" placeholder="Password" autocomplete="new-password"
+                        required>
+                    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password"
+                        autocomplete="new-password" required>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-save">Sign Up</button>
+                        <button type="button" id="closeAuthModal2" class="btn-cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

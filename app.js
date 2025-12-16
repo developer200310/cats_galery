@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,8 +22,34 @@ const db = mysql.createPool({
   queueLimit: 0
 })
 
+// Make db available to routes
+app.set('db', db);
 
+// Initialize users table if it doesn't exist
+const initUsersTable = () => {
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(255) NOT NULL UNIQUE,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
 
+  db.query(createTableSQL, (err) => {
+    if (err) {
+      console.error('Error creating users table:', err);
+    } else {
+      console.log('Users table initialized');
+    }
+  });
+};
+
+initUsersTable();
+
+// Auth routes
+app.use('/auth', authRoutes);
 
 app.get('/cats', (req, res) => {
   db.getConnection((err, connection) => {
