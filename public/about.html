@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Cats Gallery</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <a href="index.html" class="logo">Cats Gallery</a>
+
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="about.html" class="nav-link active">About</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="header-actions">
+                <!-- Guest Controls -->
+                <div id="guestControls" class="auth-controls">
+                    <button id="loginBtn" class="btn-auth"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+                    <button id="signupBtn" class="btn-auth btn-signup"><i class="fa-solid fa-user-plus"></i> Sign
+                        Up</button>
+                </div>
+
+                <!-- User Controls (Hidden by default) -->
+                <div id="userControls" class="auth-controls" style="display: none;">
+                    <button id="addCatBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Add Cat</button>
+                    <button id="logoutBtn" class="btn-auth btn-logout"><i class="fa-solid fa-right-from-bracket"></i>
+                        Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ABOUT CONTENT -->
+        <div class="guest-message">
+            <div class="welcome-card" style="text-align: left;">
+                <h1>About Cats Gallery</h1>
+                <p>Welcome to Cats Gallery, the ultimate destination for cat lovers across the globe.</p>
+                <p>Our mission is to provide a curated, high-quality collection of cat images, organized by breeds and
+                    moods. Whether you are looking for a grumpy Persian or a playful Tabby, we have it all.</p>
+                <br>
+                <h3>Our Tech Stack</h3>
+                <ul style="list-style: disc; margin-left: 20px; color: var(--text-muted); line-height: 1.8;">
+                    <li>Node.js & Express Architecture</li>
+                    <li>MySQL Database Integration</li>
+                    <li>Glassmorphism UI Design</li>
+                    <li>Secure Authentication System</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NOTIFICATION CONTAINER -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <form id="loginForm">
+                <h3>Login</h3>
+                <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"
+                    required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Login</button>
+                    <button type="button" id="closeLoginModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIGNUP MODAL -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <form id="signupForm">
+                <h3>Create Account</h3>
+                <input type="text" id="signupUsername" placeholder="Username" autocomplete="username" required>
+                <input type="email" id="signupEmail" placeholder="Email" autocomplete="email" required>
+                <input type="password" id="signupPassword" placeholder="Password" autocomplete="new-password" required>
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password"
+                    autocomplete="new-password" required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Sign Up</button>
+                    <button type="button" id="closeSignupModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Cat Modal (Required for script compatibility even if hidden) -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Add a New Cat</h3>
+            <form id="addCatForm">
+                <input type="text" id="name" placeholder="Cat Name" required>
+                <textarea id="description" placeholder="Description" required></textarea>
+                <input type="text" id="tag" placeholder="Tag" required>
+                <input type="text" id="img" placeholder="Image URL" required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Save</button>
+                    <button type="button" id="closeModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

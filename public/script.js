@@ -1,12 +1,23 @@
+const loginModal = document.getElementById("loginModal");
+const signupModal = document.getElementById("signupModal");
 const modal = document.getElementById("modal");
 const editModal = document.getElementById("editModal");
-const authModal = document.getElementById("authModal");
+
+// Buttons & Forms
 const addCatBtn = document.getElementById("addCatBtn");
 const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const heroLoginBtn = document.getElementById("heroLoginBtn");
+const heroSignupBtn = document.getElementById("heroSignupBtn");
+
+// Close Buttons
 const closeModal = document.getElementById("closeModal");
 const closeEditModal = document.getElementById("closeEditModal");
-const closeAuthModal = document.getElementById("closeAuthModal");
-const closeAuthModal2 = document.getElementById("closeAuthModal2");
+const closeLoginModal = document.getElementById("closeLoginModal");
+const closeSignupModal = document.getElementById("closeSignupModal");
+
+// Forms
 const addCatForm = document.getElementById("addCatForm");
 const editCatForm = document.getElementById("editCatForm");
 const loginForm = document.getElementById("loginForm");
@@ -31,6 +42,8 @@ let currentUser = null;
 /* ========== NOTIFICATION SYSTEM ========== */
 function showNotification(message, type = "success", duration = 4000) {
     const container = document.getElementById("notificationContainer");
+    if (!container) return;
+
     const notification = document.createElement("div");
     notification.className = `notification ${type}`;
     notification.innerHTML = `
@@ -56,53 +69,65 @@ function showNotification(message, type = "success", duration = 4000) {
 }
 
 // GALLERY VISIBILITY CONTROL
-const gallerySection = document.getElementById("gallerySection");
-
 function showGallery() {
-    gallerySection.style.display = "block";
+    const gallerySection = document.getElementById("gallerySection");
+    if (gallerySection) gallerySection.style.display = "block";
 }
 
 function hideGallery() {
-    gallerySection.style.display = "none";
+    const gallerySection = document.getElementById("gallerySection");
+    if (gallerySection) gallerySection.style.display = "none";
 }
 
 // OPEN MODAL
-addCatBtn.addEventListener("click", () => {
-    modal.style.display = "flex";
-});
+if (addCatBtn) {
+    addCatBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+    });
+}
 
 // CLOSE MODAL
-closeModal.addEventListener("click", () => {
-    modal.style.display = "none";
-});
+if (closeModal) {
+    closeModal.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+}
 
 // CLOSE EDIT MODAL
-closeEditModal.addEventListener("click", () => {
-    editModal.style.display = "none";
-});
+if (closeEditModal) {
+    closeEditModal.addEventListener("click", () => {
+        editModal.style.display = "none";
+    });
+}
 
 // PAGINATION HANDLERS
-prevBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-        currentPage--;
-        displayCats();
-    }
-});
+if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayCats();
+        }
+    });
+}
 
-nextBtn.addEventListener("click", () => {
-    const totalPages = Math.ceil(filteredCats.length / ITEMS_PER_PAGE);
-    if (currentPage < totalPages) {
-        currentPage++;
-        displayCats();
-    }
-});
+if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+        const totalPages = Math.ceil(filteredCats.length / ITEMS_PER_PAGE);
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayCats();
+        }
+    });
+}
 
 // SEARCH FUNCTIONALITY
-searchInput.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    currentPage = 1;
-    applyFilters();
-});
+if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        currentPage = 1;
+        applyFilters();
+    });
+}
 
 // TAG FILTER FUNCTIONALITY
 function applyFilters() {
@@ -114,11 +139,13 @@ function applyFilters() {
     }
 
     // Apply search filter
-    const searchTerm = searchInput.value.toLowerCase();
-    if (searchTerm) {
-        result = result.filter(cat =>
-            cat.name.toLowerCase().includes(searchTerm)
-        );
+    if (searchInput) {
+        const searchTerm = searchInput.value.toLowerCase();
+        if (searchTerm) {
+            result = result.filter(cat =>
+                cat.name.toLowerCase().includes(searchTerm)
+            );
+        }
     }
 
     filteredCats = result;
@@ -128,6 +155,8 @@ function applyFilters() {
 
 // Generate unique tags and add click handlers
 function generateTags() {
+    if (!tagContainer) return;
+
     const uniqueTags = [...new Set(allCats.map(cat => cat.tag))];
     tagContainer.innerHTML = "";
 
@@ -154,75 +183,85 @@ function generateTags() {
 }
 
 // Clear filter
-clearFilterBtn.addEventListener("click", () => {
-    selectedTag = null;
-    searchInput.value = "";
-    document.querySelectorAll(".tag-btn").forEach(btn =>
-        btn.classList.remove("active")
-    );
-    document.querySelector('[data-tag="all"]').classList.add("active");
-    filteredCats = allCats;
-    currentPage = 1;
-    displayCats();
-});
+if (clearFilterBtn) {
+    clearFilterBtn.addEventListener("click", () => {
+        selectedTag = null;
+        if (searchInput) searchInput.value = "";
+        document.querySelectorAll(".tag-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+        const allBtn = document.querySelector('.tag-btn[data-tag="all"]');
+        if (allBtn) allBtn.classList.add("active");
+        filteredCats = allCats;
+        currentPage = 1;
+        displayCats();
+    });
+}
 
 // Show all button
-document.querySelector('[data-tag="all"]').addEventListener("click", () => {
-    selectedTag = null;
-    searchInput.value = "";
-    document.querySelectorAll(".tag-btn").forEach(btn =>
-        btn.classList.remove("active")
-    );
-    document.querySelector('[data-tag="all"]').classList.add("active");
-    filteredCats = allCats;
-    currentPage = 1;
-    displayCats();
-});
+const allTagBtn = document.querySelector('.tag-btn[data-tag="all"]');
+if (allTagBtn) {
+    allTagBtn.addEventListener("click", () => {
+        selectedTag = null;
+        if (searchInput) searchInput.value = "";
+        document.querySelectorAll(".tag-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+        allTagBtn.classList.add("active");
+        filteredCats = allCats;
+        currentPage = 1;
+        displayCats();
+    });
+}
 
 // SUBMIT ADD CAT FORM
-addCatForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (addCatForm) {
+    addCatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const newCat = {
-        name: document.getElementById("name").value,
-        description: document.getElementById("description").value,
-        tag: document.getElementById("tag").value,
-        img: document.getElementById("img").value,
-    };
+        const newCat = {
+            name: document.getElementById("name").value,
+            description: document.getElementById("description").value,
+            tag: document.getElementById("tag").value,
+            img: document.getElementById("img").value,
+        };
 
-    await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCat)
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newCat)
+        });
+
+        modal.style.display = "none";
+        addCatForm.reset();
+        loadCats();
     });
-
-    modal.style.display = "none";
-    addCatForm.reset();
-    loadCats();
-});
+}
 
 // SUBMIT EDIT CAT FORM
-editCatForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (editCatForm) {
+    editCatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const catId = document.getElementById("editCatId").value;
-    const updatedCat = {
-        name: document.getElementById("editName").value,
-        description: document.getElementById("editDescription").value,
-        tag: document.getElementById("editTag").value,
-        img: document.getElementById("editImg").value,
-    };
+        const catId = document.getElementById("editCatId").value;
+        const updatedCat = {
+            name: document.getElementById("editName").value,
+            description: document.getElementById("editDescription").value,
+            tag: document.getElementById("editTag").value,
+            img: document.getElementById("editImg").value,
+        };
 
-    await fetch(`${API_URL}/${catId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedCat)
+        await fetch(`${API_URL}/${catId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedCat)
+        });
+
+        editModal.style.display = "none";
+        editCatForm.reset();
+        loadCats();
     });
-
-    editModal.style.display = "none";
-    editCatForm.reset();
-    loadCats();
-});
+}
 
 // LOAD CATS
 async function loadCats() {
@@ -240,12 +279,14 @@ async function loadCats() {
 
 // DISPLAY CATS WITH PAGINATION
 function displayCats() {
+    const container = document.getElementById("cats-container");
+    if (!container) return;
+
     const totalPages = Math.ceil(filteredCats.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const catsToDisplay = filteredCats.slice(startIndex, endIndex);
 
-    const container = document.getElementById("cats-container");
     container.innerHTML = "";
 
     catsToDisplay.forEach(cat => {
@@ -256,21 +297,21 @@ function displayCats() {
                 <p>${cat.description}</p>
                 <span class="tag">${cat.tag}</span>
                 <div class="actions">
-                    <button class="edit-btn" onclick="editCat(${cat.id}, '${cat.name}', '${cat.description}', '${cat.tag}', '${cat.img}')">Edit</button>
-                    <button class="delete-btn" onclick="deleteCat(${cat.id})">Delete</button>
+                    <button class="edit-btn" onclick="editCat(${cat.id}, '${cat.name}', '${cat.description}', '${cat.tag}', '${cat.img}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                    <button class="delete-btn" onclick="deleteCat(${cat.id})"><i class="fa-solid fa-trash"></i> Delete</button>
                 </div>
             </div>
         `;
     });
 
     // Update pagination buttons
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
 }
 
 // EDIT CAT
-function editCat(id, name, description, tag, img) {
+window.editCat = function (id, name, description, tag, img) {
     document.getElementById("editCatId").value = id;
     document.getElementById("editName").value = name;
     document.getElementById("editDescription").value = description;
@@ -280,133 +321,154 @@ function editCat(id, name, description, tag, img) {
 }
 
 // DELETE CAT
-async function deleteCat(id) {
-    await fetch(`${API_URL}/${id}`, {
-        method: "DELETE"
-    });
-    loadCats();
+window.deleteCat = async function (id) {
+    if (confirm("Are you sure you want to delete this cat?")) {
+        await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+        loadCats();
+    }
 }
 
-/* ========== AUTHENTICATION HANDLERS ========== */
+// AUTH OPEN/CLOSE
+if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+        loginModal.style.display = "flex";
+    });
+}
 
-// Auth modal toggle
-loginBtn.addEventListener("click", () => {
-    authModal.style.display = "flex";
-});
+if (signupBtn) {
+    signupBtn.addEventListener("click", () => {
+        signupModal.style.display = "flex";
+    });
+}
 
-closeAuthModal.addEventListener("click", () => {
-    authModal.style.display = "none";
-});
+// HERO BUTTONS
+if (heroLoginBtn) {
+    heroLoginBtn.addEventListener("click", () => {
+        loginModal.style.display = "flex";
+    });
+}
 
-closeAuthModal2.addEventListener("click", () => {
-    authModal.style.display = "none";
-});
+if (heroSignupBtn) {
+    heroSignupBtn.addEventListener("click", () => {
+        signupModal.style.display = "flex";
+    });
+}
 
-// Login button - toggle between login and logout
-loginBtn.addEventListener("click", () => {
-    if (currentUser) {
-        // User is logged in - logout
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         currentUser = null;
         updateAuthUI();
         showNotification("Logged out successfully!", "success");
-    } else {
-        // User is not logged in - show auth modal
-        authModal.style.display = "flex";
-    }
-});
-
-// Auth tab switching
-document.querySelectorAll(".auth-tab").forEach(tab => {
-    tab.addEventListener("click", (e) => {
-        document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".auth-form").forEach(f => f.classList.remove("active"));
-
-        e.target.classList.add("active");
-        const tabName = e.target.dataset.tab;
-        document.getElementById(`${tabName}Form`).classList.add("active");
     });
-});
+}
+
+if (closeLoginModal) {
+    closeLoginModal.addEventListener("click", () => {
+        loginModal.style.display = "none";
+    });
+}
+
+if (closeSignupModal) {
+    closeSignupModal.addEventListener("click", () => {
+        signupModal.style.display = "none";
+    });
+}
 
 // Login form submission
-loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
 
-    try {
-        const res = await fetch(`${AUTH_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
+        try {
+            const res = await fetch(`${AUTH_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
 
-        const data = await res.json();
+            const data = await res.json();
 
-        if (res.ok) {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
-            currentUser = data.user;
-            authModal.style.display = "none";
-            loginForm.reset();
-            updateAuthUI();
-            showNotification("Login successful!", "success");
-        } else {
-            showNotification(data.message || "Login failed", "error");
+            if (res.ok) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+                currentUser = data.user;
+                loginModal.style.display = "none";
+                loginForm.reset();
+                updateAuthUI();
+                showNotification("Login successful!", "success");
+            } else {
+                showNotification(data.message || "Login failed", "error");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            showNotification("Login error: " + error.message, "error");
         }
-    } catch (error) {
-        console.error("Login error:", error);
-        showNotification("Login error: " + error.message, "error");
-    }
-});
+    });
+}
 
 // Signup form submission
-signupForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+if (signupForm) {
+    signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    const username = document.getElementById("signupUsername").value;
-    const email = document.getElementById("signupEmail").value;
-    const password = document.getElementById("signupPassword").value;
-    const confirmPassword = document.getElementById("signupConfirmPassword").value;
+        const username = document.getElementById("signupUsername").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+        const confirmPassword = document.getElementById("signupConfirmPassword").value;
 
-    if (password !== confirmPassword) {
-        showNotification("Passwords do not match!", "warning");
-        return;
-    }
-
-    try {
-        const res = await fetch(`${AUTH_URL}/signup`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, email, password })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            showNotification("Sign up successful! Please login.", "success");
-            document.querySelector('[data-tab="login"]').click();
-            signupForm.reset();
-        } else {
-            showNotification(data.message || "Sign up failed", "error");
+        if (password !== confirmPassword) {
+            showNotification("Passwords do not match!", "warning");
+            return;
         }
-    } catch (error) {
-        console.error("Signup error:", error);
-        showNotification("Signup error: " + error.message, "error");
-    }
-});
+
+        try {
+            const res = await fetch(`${AUTH_URL}/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification("Sign up successful! Please login.", "success");
+                signupModal.style.display = "none";
+                loginModal.style.display = "flex";
+                signupForm.reset();
+            } else {
+                showNotification(data.message || "Sign up failed", "error");
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+            showNotification("Signup error: " + error.message, "error");
+        }
+    });
+}
 
 // Update auth UI
 function updateAuthUI() {
+    const guestControls = document.getElementById("guestControls");
+    const userControls = document.getElementById("userControls");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const guestMessage = document.getElementById("guestMessage");
+
     if (currentUser) {
-        loginBtn.textContent = `Logout (${currentUser.username})`;
-        loginBtn.id = "logoutBtn";
+        if (guestControls) guestControls.style.display = "none";
+        if (userControls) userControls.style.display = "flex";
+        if (logoutBtn) logoutBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket"></i> Logout (${currentUser.username})`;
+        if (guestMessage) guestMessage.style.display = "none";
         showGallery();
     } else {
-        loginBtn.textContent = "Login";
-        loginBtn.id = "loginBtn";
+        if (guestControls) guestControls.style.display = "flex";
+        if (userControls) userControls.style.display = "none";
+        if (guestMessage) guestMessage.style.display = "flex";
         hideGallery();
     }
 }
@@ -422,4 +484,17 @@ window.addEventListener("load", () => {
     }
 });
 
-loadCats();
+// Contact form submission
+const contactForm = document.getElementById("contactForm");
+if (contactForm) {
+    contactForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        showNotification("Message sent! We will get back to you soon.", "success");
+        contactForm.reset();
+    });
+}
+
+// Initial load check
+if (document.getElementById("cats-container")) {
+    loadCats();
+}

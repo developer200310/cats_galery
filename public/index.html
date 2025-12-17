@@ -5,29 +5,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cats Gallery</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body>
 
     <div class="container">
-        <div class="header-row">
-            <h2>Cats Gallery</h2>
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <a href="index.html" class="logo">Cats Gallery</a>
+
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+
             <div class="header-actions">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
-                <button id="addCatBtn" class="btn-add">Add Cat</button>
-                <button id="loginBtn" class="btn-auth">Login</button>
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+                </div>
+
+                <!-- Guest Controls -->
+                <div id="guestControls" class="auth-controls">
+                    <button id="loginBtn" class="btn-auth"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+                    <button id="signupBtn" class="btn-auth btn-signup"><i class="fa-solid fa-user-plus"></i> Sign
+                        Up</button>
+                </div>
+
+                <!-- User Controls (Hidden by default) -->
+                <div id="userControls" class="auth-controls" style="display: none;">
+                    <button id="addCatBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Add Cat</button>
+                    <button id="logoutBtn" class="btn-auth btn-logout"><i class="fa-solid fa-right-from-bracket"></i>
+                        Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- GUEST MESSAGE -->
+        <div id="guestMessage" class="guest-message">
+            <div class="welcome-card">
+                <div class="welcome-icon">
+                    <i class="fa-solid fa-cat"></i>
+                </div>
+                <h1>Welcome to Cats Gallery</h1>
+                <p>Please <strong>Login</strong> or <strong>Sign Up</strong> to view our exclusive collection of cats!
+                </p>
+                <div class="welcome-actions">
+                    <button id="heroLoginBtn" class="btn-auth"><i class="fa-solid fa-right-to-bracket"></i>
+                        Login</button>
+                    <button id="heroSignupBtn" class="btn-auth btn-signup"><i class="fa-solid fa-user-plus"></i> Sign
+                        Up</button>
+                </div>
             </div>
         </div>
 
-        <!-- TAG FILTER -->
+        <!-- GALLERY SECTION (Hidden by default for guests) -->
         <div id="gallerySection" class="gallery-section" style="display: none;">
+            <!-- TAG FILTER -->
             <div class="tag-filter">
                 <button class="tag-btn active" data-tag="all">All</button>
                 <div id="tagContainer"></div>
-                <button id="clearFilterBtn" class="clear-filter">Clear Filter</button>
+                <button id="clearFilterBtn" class="clear-filter"><i class="fa-solid fa-filter-circle-xmark"></i> Clear
+                    Filter</button>
             </div>
 
+            <!-- GRID -->
             <div id="cats-container" class="grid"></div>
 
             <!-- PAGINATION -->
@@ -40,18 +90,18 @@
 
     </div>
 
+    <!-- NOTIFICATION CONTAINER -->
+    <div id="notificationContainer" class="notification-container"></div>
 
     <!-- ADD CAT MODAL -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <h3>Add a New Cat</h3>
-
             <form id="addCatForm">
                 <input type="text" id="name" placeholder="Cat Name" required>
                 <textarea id="description" placeholder="Description" required></textarea>
                 <input type="text" id="tag" placeholder="Tag" required>
                 <input type="text" id="img" placeholder="Image URL" required>
-
                 <div class="modal-actions">
                     <button type="submit" class="btn-save">Save</button>
                     <button type="button" id="closeModal" class="btn-cancel">Cancel</button>
@@ -59,20 +109,17 @@
             </form>
         </div>
     </div>
-    <!-- NOTIFICATION CONTAINER -->
-    <div id="notificationContainer" class="notification-container"></div>
+
     <!-- EDIT CAT MODAL -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h3>Edit Cat</h3>
-
             <form id="editCatForm">
                 <input type="hidden" id="editCatId">
                 <input type="text" id="editName" placeholder="Cat Name" required>
                 <textarea id="editDescription" placeholder="Description" required></textarea>
                 <input type="text" id="editTag" placeholder="Tag" required>
                 <input type="text" id="editImg" placeholder="Image URL" required>
-
                 <div class="modal-actions">
                     <button type="submit" class="btn-save">Update</button>
                     <button type="button" id="closeEditModal" class="btn-cancel">Cancel</button>
@@ -81,42 +128,37 @@
         </div>
     </div>
 
-    <!-- LOGIN/SIGNUP MODAL -->
-    <div id="authModal" class="modal">
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal">
         <div class="modal-content">
-            <div class="auth-container">
-                <div class="auth-toggle">
-                    <button class="auth-tab active" data-tab="login">Login</button>
-                    <button class="auth-tab" data-tab="signup">Sign Up</button>
+            <form id="loginForm">
+                <h3>Login</h3>
+                <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"
+                    required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Login</button>
+                    <button type="button" id="closeLoginModal" class="btn-cancel">Cancel</button>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <!-- LOGIN FORM -->
-                <form id="loginForm" class="auth-form active">
-                    <h3>Login</h3>
-                    <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
-                    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"
-                        required>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-save">Login</button>
-                        <button type="button" id="closeAuthModal" class="btn-cancel">Cancel</button>
-                    </div>
-                </form>
-
-                <!-- SIGNUP FORM -->
-                <form id="signupForm" class="auth-form">
-                    <h3>Create Account</h3>
-                    <input type="text" id="signupUsername" placeholder="Username" autocomplete="username" required>
-                    <input type="email" id="signupEmail" placeholder="Email" autocomplete="email" required>
-                    <input type="password" id="signupPassword" placeholder="Password" autocomplete="new-password"
-                        required>
-                    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password"
-                        autocomplete="new-password" required>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-save">Sign Up</button>
-                        <button type="button" id="closeAuthModal2" class="btn-cancel">Cancel</button>
-                    </div>
-                </form>
-            </div>
+    <!-- SIGNUP MODAL -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <form id="signupForm">
+                <h3>Create Account</h3>
+                <input type="text" id="signupUsername" placeholder="Username" autocomplete="username" required>
+                <input type="email" id="signupEmail" placeholder="Email" autocomplete="email" required>
+                <input type="password" id="signupPassword" placeholder="Password" autocomplete="new-password" required>
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password"
+                    autocomplete="new-password" required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save">Sign Up</button>
+                    <button type="button" id="closeSignupModal" class="btn-cancel">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
