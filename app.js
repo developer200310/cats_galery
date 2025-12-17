@@ -238,6 +238,12 @@ app.patch("/cats/:id", (req, res) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Export for Vercel (serverless)
+module.exports = app;
+
+// Local development server
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
