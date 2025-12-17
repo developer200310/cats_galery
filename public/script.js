@@ -484,16 +484,6 @@ window.addEventListener("load", () => {
     }
 });
 
-// Contact form submission
-const contactForm = document.getElementById("contactForm");
-if (contactForm) {
-    contactForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        showNotification("Message sent! We will get back to you soon.", "success");
-        contactForm.reset();
-    });
-}
-
 // Initial load check
 if (document.getElementById("cats-container")) {
     loadCats();
