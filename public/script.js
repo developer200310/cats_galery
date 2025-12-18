@@ -226,15 +226,27 @@ if (addCatForm) {
             img: document.getElementById("img").value,
         };
 
-        await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newCat)
-        });
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newCat)
+            });
 
-        modal.style.display = "none";
-        addCatForm.reset();
-        loadCats();
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification("Cat added successfully!", "success");
+                modal.style.display = "none";
+                addCatForm.reset();
+                loadCats();
+            } else {
+                showNotification(data.error || "Failed to add cat", "error");
+            }
+        } catch (error) {
+            console.error("Error adding cat:", error);
+            showNotification("Error adding cat: " + error.message, "error");
+        }
     });
 }
 
@@ -251,15 +263,27 @@ if (editCatForm) {
             img: document.getElementById("editImg").value,
         };
 
-        await fetch(`${API_URL}/${catId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedCat)
-        });
+        try {
+            const res = await fetch(`${API_URL}/${catId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedCat)
+            });
 
-        editModal.style.display = "none";
-        editCatForm.reset();
-        loadCats();
+            const data = await res.json();
+
+            if (res.ok) {
+                showNotification("Cat updated successfully!", "success");
+                editModal.style.display = "none";
+                editCatForm.reset();
+                loadCats();
+            } else {
+                showNotification(data.error || "Failed to update cat", "error");
+            }
+        } catch (error) {
+            console.error("Error updating cat:", error);
+            showNotification("Error updating cat: " + error.message, "error");
+        }
     });
 }
 
@@ -323,10 +347,22 @@ window.editCat = function (id, name, description, tag, img) {
 // DELETE CAT
 window.deleteCat = async function (id) {
     if (confirm("Are you sure you want to delete this cat?")) {
-        await fetch(`${API_URL}/${id}`, {
-            method: "DELETE"
-        });
-        loadCats();
+        try {
+            const res = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                showNotification("Cat deleted successfully", "success");
+                loadCats();
+            } else {
+                const data = await res.json();
+                showNotification(data.error || "Failed to delete cat", "error");
+            }
+        } catch (error) {
+            console.error("Error deleting cat:", error);
+            showNotification("Error deleting cat: " + error.message, "error");
+        }
     }
 }
 
