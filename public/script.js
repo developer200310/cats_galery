@@ -30,8 +30,8 @@ const tagContainer = document.getElementById("tagContainer");
 const clearFilterBtn = document.getElementById("clearFilterBtn");
 
 // BACKEND URL
-const API_URL = "http://localhost:3000/cats";
-const AUTH_URL = "http://localhost:3000/auth";
+const API_URL = "/cats";
+const AUTH_URL = "/auth";
 const ITEMS_PER_PAGE = 4;
 let currentPage = 1;
 let allCats = [];
