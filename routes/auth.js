@@ -50,7 +50,8 @@ router.post('/signup', (req, res) => {
                         connection.release();
 
                         if (insertErr) {
-                            return res.status(500).json({ message: 'Error creating user' });
+                            console.error("Error creating user in DB:", insertErr); // Log the actual error
+                            return res.status(500).json({ message: 'Error creating user', error: insertErr.message });
                         }
 
                         res.status(201).json({ message: 'User created successfully' });
