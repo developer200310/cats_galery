@@ -49,7 +49,115 @@ const initUsersTable = () => {
 
 initUsersTable();
 
+// Initialize adoptions table
+const initAdoptionsTable = () => {
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS adoptions (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      cat_id INT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (cat_id) REFERENCES cats(id) ON DELETE CASCADE,
+      UNIQUE KEY unique_adoption (user_id, cat_id)
+    )
+  `;
+
+  db.query(createTableSQL, (err) => {
+    if (err) {
+      console.error('Error creating adoptions table:', err);
+    } else {
+      console.log('Adoptions table initialized');
+    }
+  });
+};
+
+initAdoptionsTable();
+
+
+
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+// Middleware to verify JWT token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token || token === "undefined") {
+    console.log("Auth failed: Token is missing or 'undefined'");
+    return res.status(401).json({ error: "Missing token" });
+  }
+
+
+  console.log(`Verifying token: ${token.substring(0, 10)}... (length: ${token.length})`);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      console.error("JWT Verification Error:", err.message);
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+
+
+// ADOPTION ENDPOINTS
+app.get('/adoptions', authenticateToken, (req, res) => {
+  const userId = req.user.id;
+  const sql = `
+    SELECT c.* FROM cats c
+    JOIN adoptions a ON c.id = a.cat_id
+    WHERE a.user_id = ?
+  `;
+
+  db.query(sql, [userId], (err, rows) => {
+    if (err) {
+      console.error("Error fetching adoptions:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(rows);
+  });
+});
+
+app.post('/adoptions', authenticateToken, (req, res) => {
+  console.log("POST /adoptions hit with body:", req.body);
+  const { catId } = req.body;
+
+  const userId = req.user.id;
+
+  if (!catId) {
+    return res.status(400).json({ error: "Missing catId" });
+  }
+
+  const sql = 'INSERT IGNORE INTO adoptions (user_id, cat_id) VALUES (?, ?)';
+  db.query(sql, [userId, catId], (err, result) => {
+    if (err) {
+      console.error("Error saving adoption:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.status(201).json({ message: "Cat adopted successfully" });
+  });
+});
+
+app.delete('/adoptions/:catId', authenticateToken, (req, res) => {
+  const catId = req.params.catId;
+  const userId = req.user.id;
+
+  const sql = 'DELETE FROM adoptions WHERE user_id = ? AND cat_id = ?';
+  db.query(sql, [userId, catId], (err, result) => {
+    if (err) {
+      console.error("Error removing adoption:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json({ message: "Adoption removed successfully" });
+  });
+});
+
 // Serve HTML pages
+
 const path = require('path');
 
 app.get('/', (req, res) => {
@@ -262,7 +370,9 @@ app.patch("/cats/:id", (req, res) => {
 });
 
 
+
 // Export for Vercel (serverless)
+
 module.exports = app;
 
 // Local development server

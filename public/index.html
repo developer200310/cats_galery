@@ -42,12 +42,16 @@
 
                 <!-- User Controls (Hidden by default) -->
                 <div id="userControls" class="auth-controls" style="display: none;">
+                    <button id="adoptionBtn" class="btn-adoption">
+                        <i class="fa-solid fa-heart"></i> Adopted (<span id="adoptionCount">0</span>)
+                    </button>
                     <button id="addCatBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Add Cat</button>
                     <button id="logoutBtn" class="btn-auth btn-logout"><i class="fa-solid fa-right-from-bracket"></i>
                         Logout</button>
                 </div>
             </div>
         </nav>
+
 
         <!-- GUEST MESSAGE -->
         <div id="guestMessage" class="guest-message">
@@ -162,7 +166,21 @@
         </div>
     </div>
 
+    <!-- ADOPTION MODAL -->
+    <div id="adoptionModal" class="modal">
+        <div class="modal-content adoption-modal-content">
+            <h3>My Adoption List</h3>
+            <div id="adoptionList" class="adoption-list">
+                <!-- Adopted cats will be listed here -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="closeAdoptionModal" class="btn-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+
 </body>
 
 </html>

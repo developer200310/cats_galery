@@ -742,3 +742,141 @@ button {
         transform: translateY(0);
     }
 }
+
+/* Adoption Button in Navbar */
+.btn-adoption {
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-adoption:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+}
+
+.btn-adoption i {
+    font-size: 18px;
+    filter: drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4));
+}
+
+/* Adopt Button on Card */
+.adopt-btn {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.adopt-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.02);
+}
+
+.adopt-btn.adopted {
+    background: #4ECDC4 !important;
+    border-color: #4ECDC4 !important;
+    color: white !important;
+    cursor: default;
+}
+
+/* Adoption Modal List */
+.adoption-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.adoption-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.adoption-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.adoption-item img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.adoption-item-info {
+    flex-grow: 1;
+}
+
+.adoption-item-info h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.adoption-item-info p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.remove-adoption {
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--primary-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.remove-adoption:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Scrollbar for adoption list */
+.adoption-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.adoption-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.adoption-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}

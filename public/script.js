@@ -2,6 +2,7 @@ const loginModal = document.getElementById("loginModal");
 const signupModal = document.getElementById("signupModal");
 const modal = document.getElementById("modal");
 const editModal = document.getElementById("editModal");
+const adoptionModal = document.getElementById("adoptionModal");
 
 // Buttons & Forms
 const addCatBtn = document.getElementById("addCatBtn");
@@ -10,12 +11,14 @@ const signupBtn = document.getElementById("signupBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const heroLoginBtn = document.getElementById("heroLoginBtn");
 const heroSignupBtn = document.getElementById("heroSignupBtn");
+const adoptionBtn = document.getElementById("adoptionBtn");
 
 // Close Buttons
 const closeModal = document.getElementById("closeModal");
 const closeEditModal = document.getElementById("closeEditModal");
 const closeLoginModal = document.getElementById("closeLoginModal");
 const closeSignupModal = document.getElementById("closeSignupModal");
+const closeAdoptionModal = document.getElementById("closeAdoptionModal");
 
 // Forms
 const addCatForm = document.getElementById("addCatForm");
@@ -32,10 +35,12 @@ const clearFilterBtn = document.getElementById("clearFilterBtn");
 // BACKEND URL
 const API_URL = "/cats";
 const AUTH_URL = "/auth";
+const ADOPTION_URL = "/adoptions";
 const ITEMS_PER_PAGE = 4;
 let currentPage = 1;
 let allCats = [];
 let filteredCats = [];
+let adoptedCats = [];
 let selectedTag = null;
 let currentUser = null;
 
@@ -97,6 +102,20 @@ if (closeModal) {
 if (closeEditModal) {
     closeEditModal.addEventListener("click", () => {
         editModal.style.display = "none";
+    });
+}
+
+// ADOPTION MODAL
+if (adoptionBtn) {
+    adoptionBtn.addEventListener("click", () => {
+        renderAdoptionList();
+        adoptionModal.style.display = "flex";
+    });
+}
+
+if (closeAdoptionModal) {
+    closeAdoptionModal.addEventListener("click", () => {
+        adoptionModal.style.display = "none";
     });
 }
 
@@ -314,15 +333,25 @@ function displayCats() {
     container.innerHTML = "";
 
     catsToDisplay.forEach(cat => {
+        const isAdopted = adoptedCats.some(a => a.id === cat.id);
+
         container.innerHTML += `
             <div class="card">
                 <img src="${cat.img}" alt="${cat.name}">
                 <h3>${cat.name}</h3>
                 <p>${cat.description}</p>
                 <span class="tag">${cat.tag}</span>
-                <div class="actions">
-                    <button class="edit-btn" onclick="editCat(${cat.id}, '${cat.name}', '${cat.description}', '${cat.tag}', '${cat.img}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                    <button class="delete-btn" onclick="deleteCat(${cat.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+                <div class="actions-wrapper" style="padding: 0 20px;">
+                    <button class="adopt-btn ${isAdopted ? 'adopted' : ''}" 
+                            onclick="handleAdoption(${cat.id}, ${isAdopted})"
+                            ${isAdopted ? 'disabled' : ''}>
+                        <i class="fa-solid ${isAdopted ? 'fa-heart' : 'fa-heart-pulse'}"></i>
+                        ${isAdopted ? 'Adopted' : 'Adopt Me'}
+                    </button>
+                    <div class="actions" style="padding: 0; margin-bottom: 20px;">
+                        <button class="edit-btn" onclick="editCat(${cat.id}, '${cat.name}', '${cat.description}', '${cat.tag}', '${cat.img}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button class="delete-btn" onclick="deleteCat(${cat.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -332,6 +361,117 @@ function displayCats() {
     if (prevBtn) prevBtn.disabled = currentPage === 1;
     if (nextBtn) nextBtn.disabled = currentPage === totalPages;
     if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+}
+
+/* ========== ADOPTION LOGIC ========== */
+
+// Fetch adoptions from server
+async function loadAdoptions() {
+    if (!currentUser) return;
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") {
+        console.warn("No valid token found for adoptions");
+        return;
+    }
+    console.log("Loading adoptions with token...");
+    try {
+        const res = await fetch(ADOPTION_URL, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        if (res.ok) {
+            adoptedCats = await res.json();
+            updateAdoptionUI();
+        }
+    } catch (error) {
+        console.error("Error loading adoptions:", error);
+    }
+}
+
+// Handle adopt/unadopt click
+window.handleAdoption = async function (catId, isAlreadyAdopted) {
+    if (isAlreadyAdopted) return;
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") {
+        showNotification("Please login again to adopt cats.", "warning");
+        return;
+    }
+
+    try {
+        const res = await fetch(ADOPTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ catId })
+        });
+
+        if (res.ok) {
+            showNotification("Cat added to your adoption list!", "success");
+            await loadAdoptions();
+            displayCats();
+        } else {
+            showNotification("Failed to adopt cat", "error");
+        }
+    } catch (error) {
+        console.error("Adoption error:", error);
+    }
+};
+
+// Remove adoption
+window.removeAdoption = async function (catId) {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${ADOPTION_URL}/${catId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            showNotification("Adoption removed", "info");
+            await loadAdoptions();
+            displayCats();
+            renderAdoptionList(); // Update modal list if open
+        }
+    } catch (error) {
+        console.error("Remove adoption error:", error);
+    }
+};
+
+// Update adoption count in UI
+function updateAdoptionUI() {
+    const adoptionCount = document.getElementById("adoptionCount");
+    if (adoptionCount) {
+        adoptionCount.textContent = adoptedCats.length;
+    }
+}
+
+// Render adopted cats in modal
+function renderAdoptionList() {
+    const container = document.getElementById("adoptionList");
+    if (!container) return;
+
+    if (adoptedCats.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 20px; color: var(--text-muted);">You haven\'t adopted any cats yet! 🐾</p>';
+        return;
+    }
+
+    container.innerHTML = adoptedCats.map(cat => `
+        <div class="adoption-item">
+            <img src="${cat.img}" alt="${cat.name}">
+            <div class="adoption-item-info">
+                <h4>${cat.name}</h4>
+                <p>${cat.tag}</p>
+            </div>
+            <button class="remove-adoption" onclick="removeAdoption(${cat.id})">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </div>
+    `).join('');
 }
 
 // EDIT CAT
@@ -397,6 +537,7 @@ if (logoutBtn) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         currentUser = null;
+        adoptedCats = [];
         updateAuthUI();
         showNotification("Logged out successfully!", "success");
     });
@@ -432,12 +573,16 @@ if (loginForm) {
             const data = await res.json();
 
             if (res.ok) {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));
-                currentUser = data.user;
+                console.log("Login successful, received token:", data.token ? "present" : "MISSING");
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    currentUser = data.user;
+                }
                 loginModal.style.display = "none";
                 loginForm.reset();
                 updateAuthUI();
+                await loadAdoptions();
                 showNotification("Login successful!", "success");
             } else {
                 showNotification(data.message || "Login failed", "error");
@@ -510,13 +655,19 @@ function updateAuthUI() {
 }
 
 // Check if user is logged in on page load
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
 
-    if (savedToken && savedUser) {
+    console.log("Page load - token status:", savedToken ? (savedToken === "undefined" ? "UNDEFINED STRING" : "present") : "missing");
+
+    if (savedToken && savedToken !== "undefined" && savedUser) {
         currentUser = JSON.parse(savedUser);
         updateAuthUI();
+        await loadAdoptions();
+        displayCats(); // Refresh to show adopt buttons correctly
+    } else if (savedToken === "undefined") {
+        localStorage.removeItem("token");
     }
 });
 
@@ -524,3 +675,4 @@ window.addEventListener("load", () => {
 if (document.getElementById("cats-container")) {
     loadCats();
 }
+
