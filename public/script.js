@@ -12,6 +12,9 @@ const logoutBtn = document.getElementById("logoutBtn");
 const heroLoginBtn = document.getElementById("heroLoginBtn");
 const heroSignupBtn = document.getElementById("heroSignupBtn");
 const adoptionBtn = document.getElementById("adoptionBtn");
+const menuToggle = document.getElementById("menuToggle");
+const navContent = document.getElementById("navContent");
+
 
 // Close Buttons
 const closeModal = document.getElementById("closeModal");
@@ -97,6 +100,41 @@ if (closeModal) {
         modal.style.display = "none";
     });
 }
+
+/* ========== RESPONSIVE NAVBAR ========== */
+if (menuToggle && navContent) {
+    menuToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        navContent.classList.toggle("active");
+
+        // Toggle icon between bars and X
+        const icon = menuToggle.querySelector("i");
+        if (navContent.classList.contains("active")) {
+            icon.classList.replace("fa-bars", "fa-xmark");
+        } else {
+            icon.classList.replace("fa-xmark", "fa-bars");
+        }
+    });
+
+    // Close menu when clicking outside or on a link
+    document.addEventListener("click", (e) => {
+        if (!navContent.contains(e.target) && !menuToggle.contains(e.target)) {
+            navContent.classList.remove("active");
+            menuToggle.querySelector("i").classList.replace("fa-xmark", "fa-bars");
+        }
+    });
+
+    // Close menu on link clicks
+    navContent.querySelectorAll(".nav-link, button").forEach(el => {
+        el.addEventListener("click", () => {
+            if (window.innerWidth < 768) {
+                navContent.classList.remove("active");
+                menuToggle.querySelector("i").classList.replace("fa-xmark", "fa-bars");
+            }
+        });
+    });
+}
+
 
 // CLOSE EDIT MODAL
 if (closeEditModal) {
@@ -368,23 +406,16 @@ function displayCats() {
 // Fetch adoptions from server
 async function loadAdoptions() {
     if (!currentUser) return;
-    const token = localStorage.getItem("token");
-    if (!token || token === "undefined") {
-        console.warn("No valid token found for adoptions");
-        return;
-    }
-    console.log("Loading adoptions with token...");
+    console.log("Loading adoptions...");
+
     try {
-        const res = await fetch(ADOPTION_URL, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
+        const res = await fetch(ADOPTION_URL);
         if (res.ok) {
             adoptedCats = await res.json();
             updateAdoptionUI();
         }
     } catch (error) {
+
         console.error("Error loading adoptions:", error);
     }
 }
@@ -392,21 +423,21 @@ async function loadAdoptions() {
 // Handle adopt/unadopt click
 window.handleAdoption = async function (catId, isAlreadyAdopted) {
     if (isAlreadyAdopted) return;
-    const token = localStorage.getItem("token");
-    if (!token || token === "undefined") {
-        showNotification("Please login again to adopt cats.", "warning");
+    if (!currentUser) {
+        showNotification("Please login to adopt cats.", "warning");
         return;
     }
+
 
     try {
         const res = await fetch(ADOPTION_URL, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({ catId })
         });
+
 
         if (res.ok) {
             showNotification("Cat added to your adoption list!", "success");
@@ -422,14 +453,13 @@ window.handleAdoption = async function (catId, isAlreadyAdopted) {
 
 // Remove adoption
 window.removeAdoption = async function (catId) {
-    const token = localStorage.getItem("token");
+    if (!currentUser) return;
+
     try {
         const res = await fetch(`${ADOPTION_URL}/${catId}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
+            method: "DELETE"
         });
+
 
         if (res.ok) {
             showNotification("Adoption removed", "info");
@@ -533,15 +563,22 @@ if (heroSignupBtn) {
 }
 
 if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        currentUser = null;
-        adoptedCats = [];
-        updateAuthUI();
-        showNotification("Logged out successfully!", "success");
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            const res = await fetch(`${AUTH_URL}/logout`, { method: "POST" });
+            if (res.ok) {
+                currentUser = null;
+                adoptedCats = [];
+                updateAuthUI();
+                showNotification("Logged out successfully!", "success");
+            }
+        } catch (error) {
+            console.error("Logout error:", error);
+            showNotification("Error during logout", "error");
+        }
     });
 }
+
 
 if (closeLoginModal) {
     closeLoginModal.addEventListener("click", () => {
@@ -573,18 +610,14 @@ if (loginForm) {
             const data = await res.json();
 
             if (res.ok) {
-                console.log("Login successful, received token:", data.token ? "present" : "MISSING");
-                if (data.token) {
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("user", JSON.stringify(data.user));
-                    currentUser = data.user;
-                }
+                currentUser = data.user;
                 loginModal.style.display = "none";
                 loginForm.reset();
                 updateAuthUI();
                 await loadAdoptions();
                 showNotification("Login successful!", "success");
             } else {
+
                 showNotification(data.message || "Login failed", "error");
             }
         } catch (error) {
@@ -654,22 +687,29 @@ function updateAuthUI() {
     }
 }
 
-// Check if user is logged in on page load
+// Check session on page load
 window.addEventListener("load", async () => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
+    try {
+        const res = await fetch(`${AUTH_URL}/verify`);
+        if (res.ok) {
+            const data = await res.json();
+            currentUser = data.user;
+            updateAuthUI();
+            await loadAdoptions();
+            displayCats();
+            console.log("Session verified: User logged in");
 
-    console.log("Page load - token status:", savedToken ? (savedToken === "undefined" ? "UNDEFINED STRING" : "present") : "missing");
-
-    if (savedToken && savedToken !== "undefined" && savedUser) {
-        currentUser = JSON.parse(savedUser);
-        updateAuthUI();
-        await loadAdoptions();
-        displayCats(); // Refresh to show adopt buttons correctly
-    } else if (savedToken === "undefined") {
-        localStorage.removeItem("token");
+            // Clean up legacy tokens
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        } else {
+            console.log("No active session found");
+        }
+    } catch (error) {
+        console.error("Session verification error:", error);
     }
 });
+
 
 // Initial load check
 if (document.getElementById("cats-container")) {

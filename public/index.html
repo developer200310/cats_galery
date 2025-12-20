@@ -19,35 +19,43 @@
     <div class="container">
         <!-- NAVBAR -->
         <nav class="navbar">
-            <a href="index.html" class="logo">Cats Gallery</a>
+            <div class="nav-brand">
+                <a href="index.html" class="logo">Cats Gallery</a>
+                <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
 
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="about.html" class="nav-link">About</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
-            </ul>
+            <div id="navContent" class="nav-content">
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
 
-            <div class="header-actions">
-                <div class="search-wrapper">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
-                </div>
+                <div class="header-actions">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+                    </div>
 
-                <!-- Guest Controls -->
-                <div id="guestControls" class="auth-controls">
-                    <button id="loginBtn" class="btn-auth"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
-                    <button id="signupBtn" class="btn-auth btn-signup"><i class="fa-solid fa-user-plus"></i> Sign
-                        Up</button>
-                </div>
+                    <!-- Guest Controls -->
+                    <div id="guestControls" class="auth-controls">
+                        <button id="loginBtn" class="btn-auth"><i class="fa-solid fa-right-to-bracket"></i>
+                            Login</button>
+                        <button id="signupBtn" class="btn-auth btn-signup"><i class="fa-solid fa-user-plus"></i> Sign
+                            Up</button>
+                    </div>
 
-                <!-- User Controls (Hidden by default) -->
-                <div id="userControls" class="auth-controls" style="display: none;">
-                    <button id="adoptionBtn" class="btn-adoption">
-                        <i class="fa-solid fa-heart"></i> Adopted (<span id="adoptionCount">0</span>)
-                    </button>
-                    <button id="addCatBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Add Cat</button>
-                    <button id="logoutBtn" class="btn-auth btn-logout"><i class="fa-solid fa-right-from-bracket"></i>
-                        Logout</button>
+                    <!-- User Controls (Hidden by default) -->
+                    <div id="userControls" class="auth-controls" style="display: none;">
+                        <button id="adoptionBtn" class="btn-adoption">
+                            <i class="fa-solid fa-heart"></i> Adopted (<span id="adoptionCount">0</span>)
+                        </button>
+                        <button id="addCatBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Add Cat</button>
+                        <button id="logoutBtn" class="btn-auth btn-logout"><i
+                                class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                    </div>
                 </div>
             </div>
         </nav>

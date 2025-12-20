@@ -96,42 +96,58 @@ router.post('/login', (req, res) => {
                     return res.status(401).json({ message: 'Invalid email or password' });
                 }
 
-                // Generate JWT token
-                const token = jwt.sign(
-                    { id: user.id, email: user.email, username: user.username },
-                    JWT_SECRET,
-                    { expiresIn: '7d' }
-                );
+                // Set user session
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                };
 
                 res.json({
                     message: 'Login successful',
-                    token,
-                    user: {
-                        id: user.id,
-                        username: user.username,
-                        email: user.email
-                    }
+                    user: req.session.user
                 });
             });
         });
     });
 });
 
-// Verify token middleware
-router.get('/verify', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+// User logout
+router.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
         if (err) {
-            return res.status(401).json({ message: 'Invalid token' });
+            return res.status(500).json({ message: 'Could not log out' });
         }
-
-        res.json({ user: decoded });
+        res.clearCookie('cat_gallery_session');
+        res.json({ message: 'Logged out successfully' });
     });
 });
 
+// Verify session
+router.get('/verify', (req, res) => {
+    if (req.session.user) {
+        return res.json({ user: req.session.user });
+    }
+
+    // Check for Legacy JWT (optional, for smooth transition)
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token && token !== "undefined") {
+        jwt.verify(token, JWT_SECRET, (err, decoded) => {
+            if (!err) {
+                // Auto-upgrade to session if token is valid
+                req.session.user = {
+                    id: decoded.id,
+                    username: decoded.username,
+                    email: decoded.email
+                };
+                return res.json({ user: req.session.user, upgraded: true });
+            }
+            res.status(401).json({ message: 'Session expired' });
+        });
+    } else {
+        res.status(401).json({ message: 'Not authenticated' });
+    }
+});
+
 module.exports = router;
+

@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const authRoutes = require('./routes/auth');
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +28,23 @@ const db = mysql.createPool({
 
 // Make db available to routes
 app.set('db', db);
+
+// Session store configuration
+const sessionStore = new MySQLStore({}, db);
+
+app.use(session({
+  key: 'cat_gallery_session',
+  secret: process.env.SESSION_SECRET || 'secret-cat-key',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    httpOnly: true,
+    secure: false // Set to true if using HTTPS
+  }
+}));
+
 
 // Initialize users table if it doesn't exist
 const initUsersTable = () => {
@@ -79,28 +99,30 @@ initAdoptionsTable();
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Middleware to verify JWT token
+// Middleware to verify session
 const authenticateToken = (req, res, next) => {
+  if (req.session.user) {
+    req.user = req.session.user;
+    return next();
+  }
+
+  // Backward compatibility with JWT if user is still using it
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token || token === "undefined") {
-    console.log("Auth failed: Token is missing or 'undefined'");
-    return res.status(401).json({ error: "Missing token" });
+    return res.status(401).json({ error: "Authentication required" });
   }
-
-
-  console.log(`Verifying token: ${token.substring(0, 10)}... (length: ${token.length})`);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      console.error("JWT Verification Error:", err.message);
-      return res.status(403).json({ error: "Invalid token" });
+      return res.status(403).json({ error: "Invalid session" });
     }
     req.user = user;
     next();
   });
 };
+
 
 
 
