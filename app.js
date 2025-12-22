@@ -13,6 +13,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const cors = require("cors");
 app.use(cors());
 
+// Required for Vercel/Heroku/Render to trust the proxy (HTTPS)
+app.enable('trust proxy');
+
 app.use(express.static('public'));
 
 const db = mysql.createPool({
@@ -41,7 +44,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     httpOnly: true,
-    secure: true // Set to true if using HTTPS
+    secure: process.env.NODE_ENV === 'production' // true on live, false on localhost
   }
 }));
 
