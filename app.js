@@ -96,38 +96,23 @@ initAdoptionsTable();
 
 
 
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
 
 // Middleware to verify session
-const authenticateToken = (req, res, next) => {
+// Middleware to verify session
+const authenticateSession = (req, res, next) => {
   if (req.session.user) {
     req.user = req.session.user;
     return next();
   }
-
-  // Backward compatibility with JWT if user is still using it
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token || token === "undefined") {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: "Invalid session" });
-    }
-    req.user = user;
-    next();
-  });
+  return res.status(401).json({ error: "Authentication required" });
 };
 
 
 
 
 // ADOPTION ENDPOINTS
-app.get('/adoptions', authenticateToken, (req, res) => {
+app.get('/adoptions', authenticateSession, (req, res) => {
   const userId = req.user.id;
   const sql = `
     SELECT c.* FROM cats c
@@ -144,7 +129,7 @@ app.get('/adoptions', authenticateToken, (req, res) => {
   });
 });
 
-app.post('/adoptions', authenticateToken, (req, res) => {
+app.post('/adoptions', authenticateSession, (req, res) => {
   console.log("POST /adoptions hit with body:", req.body);
   const { catId } = req.body;
 
@@ -164,7 +149,7 @@ app.post('/adoptions', authenticateToken, (req, res) => {
   });
 });
 
-app.delete('/adoptions/:catId', authenticateToken, (req, res) => {
+app.delete('/adoptions/:catId', authenticateSession, (req, res) => {
   const catId = req.params.catId;
   const userId = req.user.id;
 

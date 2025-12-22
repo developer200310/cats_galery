@@ -1,9 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // Middleware to get DB connection
 const getDb = (req) => req.app.get('db');
@@ -128,25 +126,7 @@ router.get('/verify', (req, res) => {
     if (req.session.user) {
         return res.json({ user: req.session.user });
     }
-
-    // Check for Legacy JWT (optional, for smooth transition)
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token && token !== "undefined") {
-        jwt.verify(token, JWT_SECRET, (err, decoded) => {
-            if (!err) {
-                // Auto-upgrade to session if token is valid
-                req.session.user = {
-                    id: decoded.id,
-                    username: decoded.username,
-                    email: decoded.email
-                };
-                return res.json({ user: req.session.user, upgraded: true });
-            }
-            res.status(401).json({ message: 'Session expired' });
-        });
-    } else {
-        res.status(401).json({ message: 'Not authenticated' });
-    }
+    res.status(401).json({ message: 'Not authenticated' });
 });
 
 module.exports = router;
