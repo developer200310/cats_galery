@@ -41,7 +41,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     httpOnly: true,
-    secure: false // Set to true if using HTTPS
+    secure: true // Set to true if using HTTPS
   }
 }));
 
@@ -96,9 +96,6 @@ initAdoptionsTable();
 
 
 
-
-
-// Middleware to verify session
 // Middleware to verify session
 const authenticateSession = (req, res, next) => {
   if (req.session.user) {
@@ -107,7 +104,6 @@ const authenticateSession = (req, res, next) => {
   }
   return res.status(401).json({ error: "Authentication required" });
 };
-
 
 
 
