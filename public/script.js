@@ -409,7 +409,9 @@ async function loadAdoptions() {
     console.log("Loading adoptions...");
 
     try {
-        const res = await fetch(ADOPTION_URL);
+        const res = await fetch(ADOPTION_URL, {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
         if (res.ok) {
             adoptedCats = await res.json();
             updateAdoptionUI();
@@ -433,7 +435,8 @@ window.handleAdoption = async function (catId, isAlreadyAdopted) {
         const res = await fetch(ADOPTION_URL, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify({ catId })
         });
@@ -457,7 +460,8 @@ window.removeAdoption = async function (catId) {
 
     try {
         const res = await fetch(`${ADOPTION_URL}/${catId}`, {
-            method: "DELETE"
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
         });
 
 
@@ -569,6 +573,7 @@ if (logoutBtn) {
             if (res.ok) {
                 currentUser = null;
                 adoptedCats = [];
+                localStorage.removeItem("token"); // Clear token
                 updateAuthUI();
                 showNotification("Logged out successfully!", "success");
             }
@@ -611,6 +616,7 @@ if (loginForm) {
 
             if (res.ok) {
                 currentUser = data.user;
+                localStorage.setItem("token", data.token); // Store token
                 loginModal.style.display = "none";
                 loginForm.reset();
                 updateAuthUI();
@@ -690,7 +696,12 @@ function updateAuthUI() {
 // Check session on page load
 window.addEventListener("load", async () => {
     try {
-        const res = await fetch(`${AUTH_URL}/verify`);
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${AUTH_URL}/verify`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
         if (res.ok) {
             const data = await res.json();
             currentUser = data.user;
@@ -698,10 +709,6 @@ window.addEventListener("load", async () => {
             await loadAdoptions();
             displayCats();
             console.log("Session verified: User logged in");
-
-            // Clean up legacy tokens
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
         } else {
             console.log("No active session found");
         }

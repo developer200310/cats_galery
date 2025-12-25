@@ -2,8 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const authRoutes = require('./routes/auth');
-const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
+const jwt = require('jsonwebtoken');
 
 
 const app = express();
@@ -29,21 +28,6 @@ const db = mysql.createPool({
 // Make db available to routes
 app.set('db', db);
 
-// Session store configuration
-const sessionStore = new MySQLStore({}, db);
-
-app.use(session({
-  key: 'cat_gallery_session',
-  secret: process.env.SESSION_SECRET || 'secret-cat-key',
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    httpOnly: true,
-    secure: false // Set to true if using HTTPS
-  }
-}));
 
 
 // Initialize users table if it doesn't exist
@@ -96,17 +80,10 @@ initAdoptionsTable();
 
 
 
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'JWt Unset';
 
-// Middleware to verify session
+// Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
-  if (req.session.user) {
-    req.user = req.session.user;
-    return next();
-  }
-
-  // Backward compatibility with JWT if user is still using it
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -116,7 +93,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: "Invalid session" });
+      return res.status(403).json({ error: "Invalid token" });
     }
     req.user = user;
     next();

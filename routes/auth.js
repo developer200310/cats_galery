@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'JWT Unset';
 
 // Middleware to get DB connection
 const getDb = (req) => req.app.get('db');
@@ -96,16 +96,16 @@ router.post('/login', (req, res) => {
                     return res.status(401).json({ message: 'Invalid email or password' });
                 }
 
-                // Set user session
-                req.session.user = {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email
-                };
+                const token = jwt.sign(
+                    { id: user.id, username: user.username, email: user.email },
+                    JWT_SECRET,
+                    { expiresIn: '2h' }
+                );
 
                 res.json({
                     message: 'Login successful',
-                    user: req.session.user
+                    token,
+                    user: { id: user.id, username: user.username, email: user.email }
                 });
             });
         });
@@ -114,39 +114,25 @@ router.post('/login', (req, res) => {
 
 // User logout
 router.post('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Could not log out' });
-        }
-        res.clearCookie('cat_gallery_session');
-        res.json({ message: 'Logged out successfully' });
-    });
+    // For JWT, logout is handled client-side by deleting the token.
+    res.json({ message: 'Logged out successfully' });
 });
 
 // Verify session
 router.get('/verify', (req, res) => {
-    if (req.session.user) {
-        return res.json({ user: req.session.user });
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token || token === "undefined") {
+        return res.status(401).json({ message: 'Not authenticated' });
     }
 
-    // Check for Legacy JWT (optional, for smooth transition)
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token && token !== "undefined") {
-        jwt.verify(token, JWT_SECRET, (err, decoded) => {
-            if (!err) {
-                // Auto-upgrade to session if token is valid
-                req.session.user = {
-                    id: decoded.id,
-                    username: decoded.username,
-                    email: decoded.email
-                };
-                return res.json({ user: req.session.user, upgraded: true });
-            }
-            res.status(401).json({ message: 'Session expired' });
-        });
-    } else {
-        res.status(401).json({ message: 'Not authenticated' });
-    }
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        res.json({ user: decoded });
+    });
 });
 
 module.exports = router;
