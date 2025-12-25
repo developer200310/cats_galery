@@ -1,5 +1,7 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const mysql = require('mysql');
 const authRoutes = require('./routes/auth');
 const jwt = require('jsonwebtoken');
@@ -8,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 const cors = require("cors");
 app.use(cors());
@@ -80,12 +83,11 @@ initAdoptionsTable();
 
 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'JWt Unset';
+const JWT_SECRET = process.env.JWT_SECRET || 'JWT Unset';
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies.token;
 
   if (!token || token === "undefined") {
     return res.status(401).json({ error: "Authentication required" });
@@ -156,7 +158,6 @@ app.delete('/adoptions/:catId', authenticateToken, (req, res) => {
 });
 
 // Serve HTML pages
-
 const path = require('path');
 
 app.get('/', (req, res) => {

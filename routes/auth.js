@@ -1,9 +1,11 @@
 const express = require('express');
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'JWT Unset';
+console.log("Auth Route JWT_SECRET:", JWT_SECRET);
 
 // Middleware to get DB connection
 const getDb = (req) => req.app.get('db');
@@ -85,6 +87,7 @@ router.post('/login', (req, res) => {
             }
 
             if (results.length === 0) {
+                console.log("Login failed: User not found for email", email);
                 return res.status(401).json({ message: 'Invalid email or password' });
             }
 
@@ -93,6 +96,7 @@ router.post('/login', (req, res) => {
             // Compare passwords
             bcrypt.compare(password, user.password, (compareErr, isMatch) => {
                 if (compareErr || !isMatch) {
+                    console.log("Login failed: Password mismatch for user", email);
                     return res.status(401).json({ message: 'Invalid email or password' });
                 }
 
@@ -102,9 +106,14 @@ router.post('/login', (req, res) => {
                     { expiresIn: '2h' }
                 );
 
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    // secure: process.env.NODE_ENV === 'production', // Uncomment in production
+                    maxAge: 7200000 // 2 hours
+                });
+
                 res.json({
                     message: 'Login successful',
-                    token,
                     user: { id: user.id, username: user.username, email: user.email }
                 });
             });
@@ -114,14 +123,13 @@ router.post('/login', (req, res) => {
 
 // User logout
 router.post('/logout', (req, res) => {
-    // For JWT, logout is handled client-side by deleting the token.
+    res.clearCookie('token');
     res.json({ message: 'Logged out successfully' });
 });
 
-// Verify session
+// Verify 
 router.get('/verify', (req, res) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies.token;
 
     if (!token || token === "undefined") {
         return res.status(401).json({ message: 'Not authenticated' });
